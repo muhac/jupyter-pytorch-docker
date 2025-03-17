@@ -61,7 +61,7 @@ RUN eval "$('/root/anaconda/bin/conda' 'shell.bash' 'hook')" && conda activate l
     conda install -c pytorch -c nvidia -c conda-forge --strict-channel-priority \
         pytorch torchvision torchaudio pytorch-cuda=12.4 \
         transformers datasets spacy xgboost beautifulsoup4 && \
-    pip install accelerate>=0.26.0 && \
+    pip install accelerate>=0.26.0 optuna && \
     pip install -U pymilvus && \
     conda clean -a && pip cache purge
 
