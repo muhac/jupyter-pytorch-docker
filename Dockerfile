@@ -4,7 +4,7 @@ ENV SHELL=/bin/bash
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
-RUN pip install transformers datasets accelerate openai sentencepiece huggingface_hub[cli] && \
+RUN pip install transformers datasets accelerate optimum autoawq intel_extension_for_pytorch openai sentencepiece huggingface_hub[cli] && \
     pip cache purge
 
 # Run JupyterLab on start
