@@ -61,8 +61,8 @@ RUN eval "$('/root/anaconda/bin/conda' 'shell.bash' 'hook')" && conda activate l
     conda install -c pytorch -c nvidia -c conda-forge --strict-channel-priority \
         pytorch torchvision torchaudio pytorch-cuda=12.4 \
         transformers datasets spacy xgboost beautifulsoup4 && \
-    pip install accelerate>=0.26.0 optuna requests arxiv rapidfuzz openai && \
-    pip install -U pymilvus && \
+    pip install accelerate>=0.26.0 peft optuna requests arxiv rapidfuzz openai && \
+    pip install tensorboard && pip install -U pymilvus bitsandbytes && \
     conda clean -a && pip cache purge
 
 # Run JupyterLab on start
