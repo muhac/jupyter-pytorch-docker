@@ -1,5 +1,5 @@
-# Use CUDA 12.4
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+# Use CUDA 13.0 (matches the CUDA runtime of the PyTorch cu130 wheels installed below)
+FROM nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04
 SHELL ["/bin/bash", "-c"]
 ENV SHELL=/bin/bash
 ENV DEBIAN_FRONTEND=noninteractive
@@ -11,8 +11,7 @@ ENV CPATH="/usr/local/cuda/include:/usr/include:$CPATH"
 ENV LIBRARY_PATH="/usr/local/cuda/lib64:$LIBRARY_PATH"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
 
-RUN echo 'command -v nvcc &>/dev/null && nvcc -V || uname -srm' >> /root/.bashrc && \
-    echo 'eval "$(starship init bash)"' >> /root/.bashrc
+RUN echo 'command -v nvcc &>/dev/null && nvcc -V || uname -srm' >> /root/.bashrc
 
 # Install basic packages
 RUN apt-get update --fix-missing && \
@@ -35,9 +34,9 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
 # Setup JupyterLab plugins
 RUN eval "$('/root/conda/bin/conda' 'shell.bash' 'hook')" && conda activate lab && \
     conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex && \
-    pip install 'jupyterlab>=4.1.0,<5.0.0a0' jupyterlab-lsp 'python-lsp-server[all]' \
+    pip install 'jupyterlab>=4.5.0,<4.7' 'notebook>=7.5,<8' jupyterlab-lsp 'python-lsp-server[all]' \
         jupyterlab-code-formatter black isort jupyterlab-spellchecker jupyterlab-latex \
-        jupyter-resource-usage jupyterlab_execute_time lckr_jupyterlab_variableinspector \
+        jupyter-resource-usage jupyterlab_execute_time \
         jupyterlab-git jupyterlab_wakatime 'ipywidgets>=8.0' && \
     npm set prefix /root && npm install -g --save-dev remark-language-server \
         remark-preset-lint-consistent remark-preset-lint-recommended && \
@@ -54,13 +53,23 @@ COPY JupyterLabConfig/starship.toml /root/.config/starship.toml
 
 # Install PyTorch and AI libs
 RUN eval "$('/root/conda/bin/conda' 'shell.bash' 'hook')" && conda activate lab && \
-    pip install torch torchvision torchaudio transformers datasets accelerate peft && \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130 && \
+    pip install transformers datasets accelerate peft && \
     conda clean -a && pip cache purge
 
 # Run JupyterLab on start
 ENV DEBIAN_FRONTEND=dialog
 RUN echo 'conda activate lab' >> /root/.bashrc && \
+    echo 'command -v starship &>/dev/null && eval "$(starship init bash)"' >> /root/.bashrc && \
     echo 'jupyter lab' > /root/entrypoint.sh
+
+# Smoke test the build: CUDA toolkit, PyTorch wheels, JupyterLab extensions and shell startup
+RUN nvcc --version | tee /tmp/check.txt && grep -q 'release 13\.' /tmp/check.txt && \
+    bash -i -c "python -c 'import torch; print(torch.__version__, torch.version.cuda)'" 2>&1 </dev/null | tee /tmp/check.txt && \
+    grep -qE '\+cu13[0-9] 13\.' /tmp/check.txt && ! grep -q 'command not found' /tmp/check.txt && \
+    bash -i -c 'jupyter labextension list' 2>&1 </dev/null | tee /tmp/check.txt && \
+    ! grep -qiE 'incompatible|problems|command not found' /tmp/check.txt && \
+    rm -f /tmp/check.txt
 
 WORKDIR /root/projects
 ENTRYPOINT ["/bin/bash", "-i", "/root/entrypoint.sh"]

@@ -1111,9 +1111,8 @@ c.ServerApp.port = 80
 #  Default: False
 # c.ServerApp.terminals_enabled = False
 
-## DEPRECATED. Use IdentityProvider.token
-#  Default: '<DEPRECATED>'
-c.ServerApp.token = ''
+## Empty token disables token authentication (replaces the deprecated ServerApp.token).
+c.IdentityProvider.token = ''
 
 ## Supply overrides for the tornado.web.Application that the Jupyter server uses.
 #  Default: {}
