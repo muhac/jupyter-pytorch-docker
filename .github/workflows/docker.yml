@@ -8,10 +8,21 @@ on:
     types:
       - published
 
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/muhac/jupyter-workspace
+
 jobs:
   build:
     name: Build and Publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout the Repo
         uses: actions/checkout@v7
@@ -32,11 +43,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Log in to Docker Hub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Determine Docker Tag
         run: |
@@ -54,12 +66,22 @@ jobs:
           echo "Determined TAG: $TAG"
           echo "TAG=$TAG" >> $GITHUB_ENV
 
+      - name: Extract Image Metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: type=raw,value=${{ env.TAG }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
       - name: Build and Push
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
-          tags: muhac/jupyter-pytorch:${{ env.TAG }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
 
       - name: Check Free Space Remaining
