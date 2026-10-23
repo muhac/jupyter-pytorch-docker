@@ -14,7 +14,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/muhac/jupyter-pytorch
+  IMAGE_NAME: ghcr.io/muhac/jupyter-workspace
 
 jobs:
   build:
