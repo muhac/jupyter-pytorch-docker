@@ -2,9 +2,11 @@
 
 A preconfigured JupyterLab workspace in Docker! `conda` installed. The `main` branch ships CUDA + PyTorch: by default, the JupyterLab server runs on an Anaconda environment with PyTorch and some other commonly used libraries installed. The `env/*` branches provide other environment variants.
 
-This docker configuration is Ubuntu 22.04 LTS, CUDA version 12.4, cuDNN 9. You may change the base system and the CUDA version listed here: [nvidia/cuda | DockerHub](https://hub.docker.com/r/nvidia/cuda/tags?page=1).
+This docker configuration is Ubuntu 24.04 LTS, CUDA version 13.0 (13.0.3), cuDNN 9, with PyTorch installed from the official `cu130` wheels, so `nvcc` and `torch.version.cuda` both report CUDA 13.0. You may change the base system and the CUDA version listed here: [nvidia/cuda | DockerHub](https://hub.docker.com/r/nvidia/cuda/tags?page=1).
 
-CUDA Docker environment is supported by [Ubuntu nvidia cuda toolkit](https://packages.ubuntu.com/jammy/amd64/nvidia-cuda-toolkit). Instruction: [CUDA and cuDNN Install | Pop!_OS](https://support.system76.com/articles/cuda/). It should work on Windows as well, with WSL.
+**NVIDIA driver requirement:** CUDA 13 needs a host driver of at least R580. Per the [CUDA Toolkit Release Notes](https://docs.nvidia.com/cuda/archive/13.0.3/cuda-toolkit-release-notes/index.html), any CUDA 13.x application runs on drivers `>= 580` (minor version compatibility), and the CUDA 13.0 Update 3 toolkit used here ships with driver `>= 580.126.20` on Linux x86_64. Older drivers (for example the 550 series that CUDA 12.4 needed) will not work; check yours with `nvidia-smi`. CUDA 13 also removed support for Maxwell, Pascal and Volta GPUs (compute capabilities earlier than Turing), so those GPUs cannot be used with this image.
+
+CUDA Docker environment is supported by [Ubuntu nvidia cuda toolkit](https://packages.ubuntu.com/noble/amd64/nvidia-cuda-toolkit). Instruction: [CUDA and cuDNN Install | Pop!_OS](https://support.system76.com/articles/cuda/). It should work on Windows as well, with WSL.
 
 ## Available Tags
 
