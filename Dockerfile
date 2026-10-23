@@ -34,9 +34,9 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
 # Setup JupyterLab plugins
 RUN eval "$('/root/conda/bin/conda' 'shell.bash' 'hook')" && conda activate lab && \
     conda install -c conda-forge starship nodejs pandoc texlive-core texlab chktex && \
-    pip install 'jupyterlab>=4.5.0,<5.0.0a0' jupyterlab-lsp 'python-lsp-server[all]' \
+    pip install 'jupyterlab>=4.5.0,<4.7' 'notebook>=7.5,<8' jupyterlab-lsp 'python-lsp-server[all]' \
         jupyterlab-code-formatter black isort jupyterlab-spellchecker jupyterlab-latex \
-        jupyter-resource-usage jupyterlab_execute_time lckr_jupyterlab_variableinspector \
+        jupyter-resource-usage jupyterlab_execute_time \
         jupyterlab-git jupyterlab_wakatime 'ipywidgets>=8.0' && \
     npm set prefix /root && npm install -g --save-dev remark-language-server \
         remark-preset-lint-consistent remark-preset-lint-recommended && \
