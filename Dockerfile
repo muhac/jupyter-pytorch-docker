@@ -1,5 +1,5 @@
 # Use CUDA 13.0 (matches the CUDA runtime of the PyTorch cu130 wheels installed below)
-FROM nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04
+FROM nvidia/cuda:13.4.3-cudnn-devel-ubuntu24.04
 SHELL ["/bin/bash", "-c"]
 ENV SHELL=/bin/bash
 ENV DEBIAN_FRONTEND=noninteractive
