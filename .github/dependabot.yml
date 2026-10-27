@@ -21,3 +21,8 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Keep the CUDA minor pinned: a new minor raises the minimum host driver
+    # (13.4 needs R615 vs R580 for 13.0), while torch cu130 wheels bundle their own CUDA 13.0 libs.
+    ignore:
+      - dependency-name: "nvidia/cuda"
+        update-types: ["version-update:semver-minor"]

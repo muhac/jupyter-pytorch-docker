@@ -1,5 +1,5 @@
 # Use CUDA 13.0 (matches the CUDA runtime of the PyTorch cu130 wheels installed below)
-FROM nvidia/cuda:13.4.3-cudnn-devel-ubuntu24.04
+FROM nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04
 SHELL ["/bin/bash", "-c"]
 ENV SHELL=/bin/bash
 ENV DEBIAN_FRONTEND=noninteractive
@@ -54,7 +54,7 @@ COPY JupyterLabConfig/starship.toml /root/.config/starship.toml
 # Install PyTorch and AI libs
 RUN eval "$('/root/conda/bin/conda' 'shell.bash' 'hook')" && conda activate lab && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu130 && \
-    pip install transformers datasets accelerate peft && \
+    pip install transformers datasets accelerate peft ninja && \
     conda clean -a && pip cache purge
 
 # Run JupyterLab on start
@@ -69,6 +69,8 @@ RUN nvcc --version | tee /tmp/check.txt && grep -q 'release 13\.' /tmp/check.txt
     grep -qE '\+cu13[0-9] 13\.' /tmp/check.txt && ! grep -q 'command not found' /tmp/check.txt && \
     bash -i -c 'jupyter labextension list' 2>&1 </dev/null | tee /tmp/check.txt && \
     ! grep -qiE 'incompatible|problems|command not found' /tmp/check.txt && \
+    bash -i -c "ninja --version && python -c 'from torch.utils.cpp_extension import verify_ninja_availability as v; v(); print(\"ninja ok\")'" 2>&1 </dev/null | tee /tmp/check.txt && \
+    grep -q '^ninja ok$' /tmp/check.txt && ! grep -qiE 'error|command not found' /tmp/check.txt && \
     rm -f /tmp/check.txt
 
 WORKDIR /root/projects
