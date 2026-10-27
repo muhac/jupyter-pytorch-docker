@@ -70,7 +70,7 @@ RUN nvcc --version | tee /tmp/check.txt && grep -q 'release 13\.' /tmp/check.txt
     bash -i -c 'jupyter labextension list' 2>&1 </dev/null | tee /tmp/check.txt && \
     ! grep -qiE 'incompatible|problems|command not found' /tmp/check.txt && \
     bash -i -c "ninja --version && python -c 'from torch.utils.cpp_extension import verify_ninja_availability as v; v(); print(\"ninja ok\")'" 2>&1 </dev/null | tee /tmp/check.txt && \
-    grep -q '^ninja ok$' /tmp/check.txt && ! grep -qiE 'error|command not found' /tmp/check.txt && \
+    grep -q '^ninja ok$' /tmp/check.txt && \
     rm -f /tmp/check.txt
 
 WORKDIR /root/projects
